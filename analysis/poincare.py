@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from models import rimless_wheel as model
 
 
 def simulate_one_step(theta_dot_n,theta_post_reset,params,dynamics_fn,reset_fn,timestep=1e-3,max_time=5.0):
@@ -10,8 +11,7 @@ def simulate_one_step(theta_dot_n,theta_post_reset,params,dynamics_fn,reset_fn,t
 
     while current_time<max_time:
         dt=min(timestep,max_time-current_time)
-        _,step_states=integrator.rk4(dt,params,dynamics_fn,current_state,dt)
-        state_after_step=step_states[:,-1]
+        state_after_step=integrator.rk4_step(dt,params,model.dynamics,current_state)
         new_state=reset_fn(current_time,state_after_step,params)
 
         impacted=not np.isclose(new_state[0],state_after_step[0],rtol=0.0,atol=1e-12)

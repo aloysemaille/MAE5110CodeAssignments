@@ -15,13 +15,13 @@ params={
     "mass":0.25,
     "damping_coeff":0.0,
     "number_spokes":8,
-    "ground_inclination":np.pi/4,
+    "ground_inclination":0.2,
 }
 
 initial_state=np.array([params["ground_inclination"]+0.05,0.0])
 
 timestep=1e-2
-simulation_time=20.0
+simulation_time=30.0
 
 theta_bounds,theta_post_reset=model.compute_theta_bounds(params)
 
