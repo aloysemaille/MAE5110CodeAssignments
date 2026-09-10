@@ -84,17 +84,21 @@ roa_fraction_by_n_spokes,floquet_by_n_spokes=poincare.run_stability_sweep("numbe
 
 model.plot_energy_vs_time(time_history,potential_energy,kinetic_energy,total_energy)
 
-roa.plot_roa_map(roa_theta_range,roa_theta_dot_range,roa_results,state_history,model.dynamics,params,
+roa.plot_roa_map(roa_theta_range,roa_theta_dot_range,roa_results,state_history,model.dynamics,
+                 model.next_spoke_trigger,params,
+                 fixed_point=fixed_point,theta_post_reset=theta_post_reset,timestep=timestep,
                  title=f"RoA map, gamma = {params['ground_inclination']:.3f} rad")
 
 poincare.plot_return_map(theta_dot_range,theta_dot_next,fixed_point,
                          title=f"Return map, gamma = {params['ground_inclination']:.3f} rad")
 
 
+if fixed_point is not None:
+    print(f"Fixed point theta_dot*: {fixed_point:.4f} rad/s")
 
-print(f"Fixed point theta_dot*: {fixed_point:.4f} rad/s")
-print(f"Floquet multiplier: {floquet_multiplier:.4f}")
-print("Stable" if abs(floquet_multiplier)<1 else "Unstable")
+if floquet_multiplier is not None:
+    print(f"Floquet multiplier: {floquet_multiplier:.4f}")
+    print("Stable" if abs(floquet_multiplier)<1 else "Unstable")
 
 
 

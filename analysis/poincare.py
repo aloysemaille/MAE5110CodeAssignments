@@ -133,3 +133,29 @@ def plot_sweep_results(param_values,roa_fractions,floquet_multipliers,param_labe
     axes[1].set_title(f"Floquet multiplier vs {param_label}")
 
     plt.tight_layout()
+
+
+def simulate_one_step_full(theta_dot_n,theta_post_reset,params,dynamics_fn,reset_fn,timestep=1e-3,max_time=5.0):
+    from integrators import rk4 as integrator
+
+    current_time=0.0
+    current_state=np.array([theta_post_reset,theta_dot_n],dtype=float)
+    theta_history=[current_state[0]]
+    theta_dot_history=[current_state[1]]
+
+    while current_time<max_time:
+        dt=min(timestep,max_time-current_time)
+        state_after_step=integrator.rk4_step(dt,params,dynamics_fn,current_state)
+        new_state=reset_fn(current_time,state_after_step,params)
+
+        impacted=not np.isclose(new_state[0],state_after_step[0],rtol=0.0,atol=1e-12)
+
+        current_state=state_after_step
+        theta_history.append(current_state[0])
+        theta_dot_history.append(current_state[1])
+        current_time+=dt
+
+        if impacted:
+            break
+
+    return np.column_stack([theta_history,theta_dot_history])

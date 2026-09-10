@@ -83,7 +83,9 @@ def _plot_vector_field(theta_min,theta_max,theta_dot_min,theta_dot_max,model_dyn
     plt.quiver(grid_theta,grid_theta_dot,dx,dy,color="gray",alpha=0.6,pivot="mid",angles="xy",scale_units="xy",scale=0.8,width=0.002,headwidth=4,headlength=3)
     plt.streamplot(grid_theta,grid_theta_dot,theta_derivative,theta_dot_derivative,color="cyan",linewidth=0.3,density=1.0,arrowsize=0)
 
-def plot_roa_map(theta_range,theta_dot_range,results,trajectory,model_dynamics,params,
+
+def plot_roa_map(theta_range,theta_dot_range,results,trajectory,model_dynamics,model_trigger,params,
+                 fixed_point=None,theta_post_reset=None,timestep=1e-3,
                  title="Region of Attraction map"):
     plt.figure(figsize=(10,6))
 
@@ -107,6 +109,10 @@ def plot_roa_map(theta_range,theta_dot_range,results,trajectory,model_dynamics,p
     theta_plot, theta_dot_plot = _break_trajectory_at_resets(trajectory, angle_between_adjacent_spokes)
     plt.plot(theta_plot, theta_dot_plot, color="black", linewidth=1, label="trajectory")
 
+    if fixed_point is not None and theta_post_reset is not None:
+        plot_theoretical_limit_cycle(fixed_point,theta_post_reset,params,model_dynamics,model_trigger,
+                                     timestep=timestep)
+
     margin=0.15*(theta_max-theta_min)
     plt.xlim(theta_min-margin,theta_max+margin)
     plt.axvline(0, color="white", linewidth=0.8)
@@ -116,14 +122,20 @@ def plot_roa_map(theta_range,theta_dot_range,results,trajectory,model_dynamics,p
     stopped_patch = Patch(color=cmap(0.0), alpha=0.35, label="stopped")
     unresolved_patch = Patch(color=cmap(0.5), alpha=0.35, label="unresolved")
     trajectory_line = plt.Line2D([], [], color="black", linewidth=1, label="trajectory")
+    limit_cycle_line = plt.Line2D([], [], color="red", linewidth=2, label="stable limit cycle")
+    fixed_point_marker = plt.Line2D([], [], marker="*", color="red", markeredgecolor="black",
+                                    markersize=15, linestyle="None", label="fixed point")
 
     plt.xlabel("theta (rad)")
     plt.ylabel("theta_dot (rad/s)")
     plt.title(title)
-    plt.legend(handles=[trajectory_line, walking_patch, unresolved_patch, stopped_patch])
+    plt.legend(handles=[trajectory_line, limit_cycle_line, fixed_point_marker,
+                        walking_patch, unresolved_patch, stopped_patch])
     plt.tight_layout()
 
+    
 def _break_trajectory_at_resets(trajectory, angle_between_adjacent_spokes, tolerance_fraction=0.5):
+
     theta = trajectory[:,0]
     theta_dot = trajectory[:,1]
 
@@ -134,3 +146,29 @@ def _break_trajectory_at_resets(trajectory, angle_between_adjacent_spokes, toler
     theta_dot_plot = np.insert(theta_dot, np.where(jumps)[0]+1, np.nan)
 
     return theta_plot, theta_dot_plot
+
+
+def extract_stabilized_segment(trajectory, angle_between_adjacent_spokes, n_cycles=3, tolerance=1e-6):
+    theta = trajectory[:,0]
+
+    jumps = np.isclose(np.abs(np.diff(theta)), angle_between_adjacent_spokes, atol=tolerance)
+    jump_indices = np.where(jumps)[0] + 1
+
+    if len(jump_indices) < n_cycles + 1:
+        return trajectory
+
+    start_index = jump_indices[-(n_cycles+1)]
+    return trajectory[start_index:]
+
+def plot_theoretical_limit_cycle(fixed_point,theta_post_reset,params,dynamics_fn,reset_fn,timestep=1e-3):
+    from analysis import poincare
+
+    if fixed_point is None:
+        return
+
+    limit_cycle=poincare.simulate_one_step_full(fixed_point,theta_post_reset,params,dynamics_fn,reset_fn,
+                                                 timestep=timestep)
+
+    plt.plot(limit_cycle[:,0],limit_cycle[:,1],color="red",linewidth=2,label="stable limit cycle")
+    plt.plot(theta_post_reset,fixed_point,"*",color="red",markersize=15,markeredgecolor="black",
+             label="fixed point",zorder=5)
