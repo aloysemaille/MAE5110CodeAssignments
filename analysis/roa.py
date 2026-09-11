@@ -55,22 +55,6 @@ def build_roa_grid(params,theta_bounds,timestep,fixed_point=None,
 
     return theta_range,angular_velocity_range,all_status
 
-def _plot_vector_field(theta_range,theta_dot_range,model_dynamics,params,quiver_density=15):
-    quiver_theta=np.linspace(theta_range[0],theta_range[-1],quiver_density)
-    quiver_theta_dot=np.linspace(theta_dot_range[0],theta_dot_range[-1],quiver_density)
-    grid_theta,grid_theta_dot=np.meshgrid(quiver_theta,quiver_theta_dot)
-    theta_derivative=np.zeros_like(grid_theta)
-    theta_dot_derivative=np.zeros_like(grid_theta_dot)
-
-    for i in range(grid_theta.shape[0]):
-        for j in range(grid_theta.shape[1]):
-            state=np.array([grid_theta[i,j],grid_theta_dot[i,j]])
-            derivative=model_dynamics(0,state,params)
-            theta_derivative[i,j]=derivative[0]
-            theta_dot_derivative[i,j]=derivative[1]
-
-    plt.quiver(grid_theta,grid_theta_dot,theta_derivative,theta_dot_derivative,color="gray",alpha=0.5)
-
 def _break_trajectory_at_resets(trajectory,params):
     angle_between_spokes=2*np.pi/params["number_spokes"]
     jumps=np.abs(np.diff(trajectory[:,0]))>0.5*angle_between_spokes
@@ -103,12 +87,6 @@ def plot_roa_map(theta_range,theta_dot_range,results,trajectory,model_dynamics,p
         aspect="auto"
     )
 
-    _plot_vector_field(
-        theta_range,
-        theta_dot_range,
-        model_dynamics,
-        params
-    )
 
     theta_plot,theta_dot_plot=_break_trajectory_at_resets(
         trajectory,

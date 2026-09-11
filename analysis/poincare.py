@@ -150,7 +150,7 @@ def run_stability_sweep(param_name,param_values,base_params,timestep,
 
     return np.array(roa_sizes),np.array(floquet_multipliers)
 
-def plot_return_map(theta_dot_range,theta_dot_next,fixed_point=None,title="Return map"):
+
     plt.figure(figsize=(6,6))
     plt.plot(theta_dot_range,theta_dot_next,"o-",label="return map",markersize=3)
     plt.plot(theta_dot_range,theta_dot_range,"--",label="identity line")
@@ -164,19 +164,3 @@ def plot_return_map(theta_dot_range,theta_dot_next,fixed_point=None,title="Retur
     plt.legend()
     plt.tight_layout()
 
-def plot_sweep_results(param_values,roa_sizes,floquet_multipliers,param_label):
-    fig,axes=plt.subplots(1,2,figsize=(10,4.5))
-
-    axes[0].plot(param_values,roa_sizes,"o-")
-    axes[0].set_xlabel(param_label)
-    axes[0].set_ylabel("RoA size")
-    axes[0].set_title(f"RoA size versus {param_label}")
-
-    axes[1].plot(param_values,floquet_multipliers,"o-")
-    axes[1].axhline(1,linestyle="--")
-    axes[1].axhline(-1,linestyle="--")
-    axes[1].set_xlabel(param_label)
-    axes[1].set_ylabel("Floquet multiplier")
-    axes[1].set_title(f"Floquet multiplier versus {param_label}")
-
-    fig.tight_layout()
