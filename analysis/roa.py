@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def make_roa_grid(params, theta_range, angular_velocity_range, n_theta, n_angular_velocity,timestep, simulation_time, integrator, model,speed_tolerance=1e-1, cycle_tolerance=1e-2, n_consecutive=3):
+def make_roa_grid(params, theta_range, angular_velocity_range, n_theta, n_angular_velocity,timestep, simulation_time, integrator, model,speed_tolerance=1e-1, cycle_tolerance=1e-1, n_consecutive=3):
 
     theta_points = np.linspace(theta_range[0], theta_range[1], n_theta)
     angular_velocity_points = np.linspace(angular_velocity_range[0], angular_velocity_range[1], n_angular_velocity)

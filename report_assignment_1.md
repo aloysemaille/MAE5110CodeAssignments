@@ -13,7 +13,7 @@ For the main analysis I used:
 | Number of spokes $N$ | 8 |
 | Ground inclination $\gamma$ | 0.2 rad |
 
-The timestep used for the simulations was 1e-2 s.
+The timestep used for the simulations was 1e-2 s. The simulation time was set to 60s.
 
 The initial conditions where 0.25 for theta and 0 for theta dot.
 
@@ -67,11 +67,10 @@ The graph below confirms both those checks. We can see the clear theta bounds as
 
 ## 5. How the slope and number of spokes affect the RoA and local convergence
 
-I am not sure my RoA plot is fully right. I tried to fix it but I am not sure about what we actually want and how to get it. 
+The size of the region of attraction significantly increases when the number of spokes is above 6, while the floquet multiplier follows an exponential decrease towards one as the number of spokes increases. This is consistent with the fact that a larger number of spokes reduces the angle between impacts, so each impact dissipates less energy. The larger RoA reflects this increased robustness to initial conditions, though the multiplier approaching one indicates the limit cycle becomes only weakly attracting, with slower convergence toward the periodic gait.
 
-The plots I have use the number of walking points over the total of points as what is region of attraction.
+For the gamma sweep, we can observe a jump when the slope becomes more angled than 0.2rad, followed by a linear increase as it gets steeper. The Floquet multiplier seems to be again following an exponential decrease, this time towards 0.5. The threshold suggests a minimum ground inclination below which gravity cannot supply enough energy to sustain a stable periodic gait, so no meaningful limit cycle exists until this bifurcation point is crossed. Beyond the threshold, steeper slopes inject more energy per step, which both widens the RoA and strengthens the contraction rate toward the limit cycle.
 
-However what they seem to say is that the number of spokes does not have that much impact on the RoA as soon as it is above 6, same for floquet multiplier. While the gamma shows a sharp decline in RoA at around 0.42 radians with a floquet multiplier that shows a more stable attractor starting at this slope angle.
 
 <img src="images/N_spokes_sweep.png" width="500" alt="none">
 <img src="images/gamma_sweep.png" width="500" alt="none">
