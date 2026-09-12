@@ -11,7 +11,7 @@ params={
     "gravity":9.81,
     "length":1,
     "mass":0.25,
-    "damping_coeff":0.0,
+    "damping_coeff":0.2,
     "number_spokes":8,
     "ground_inclination":0.2,
 }
@@ -19,7 +19,7 @@ params={
 initial_state=np.array([params["ground_inclination"]+0.05,0.0])
 
 timestep=1e-2
-simulation_time=40.0
+simulation_time=60
 
 theta_bounds,_ = model.compute_theta_bounds(params)
 
@@ -32,7 +32,7 @@ plot.plot(time_history, kinetic_energy, labels="Kinetic Energy",xlabel="time (s)
 plot.plot(time_history, total_energy, labels="Total Energy",xlabel="time (s)", ylabel="energy (J)", title="Energy",diagonal=False, marker_point=None, hlines=None, ax=ax)
 ax.legend()
 
-theta_points, angular_velocity_points, result = roa.make_roa_grid(params,theta_bounds,angular_velocity_range=(-10.0, 10.0),n_theta=15,n_angular_velocity=15,timestep=timestep,simulation_time=simulation_time,integrator=integrator,model=model,)
+theta_points, angular_velocity_points, result = roa.make_roa_grid(params,theta_bounds,angular_velocity_range=(-10.0, 10.0),n_theta=25,n_angular_velocity=25,timestep=timestep,simulation_time=simulation_time,integrator=integrator,model=model,)
 
 theta_dot_range = np.linspace(0.5, 6.0, 40)
 theta_dot_next = poincare.build_return_map(theta_dot_range, theta_bounds[0], params, model, integrator, timestep=timestep, max_time=5.0)

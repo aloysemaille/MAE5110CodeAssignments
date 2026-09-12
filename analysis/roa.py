@@ -25,7 +25,7 @@ def make_roa_grid(params, theta_range, angular_velocity_range, n_theta, n_angula
 
             if len(impact_velocities) >= n_consecutive:
                 recent = impact_velocities[-n_consecutive:]
-                if np.max(np.abs(recent - recent[-1])) < cycle_tolerance:
+                if np.max(np.abs(np.diff(recent))) < cycle_tolerance:
                     result[j, i] = "limit_cycle"
                     continue
 
