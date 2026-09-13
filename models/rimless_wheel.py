@@ -36,7 +36,8 @@ def simulate_trajectory(initial_state, params, timestep, simulation_time, integr
     state_history = [current_state]
 
     while current_time <= simulation_time:
-        _, state_traj = integrator.rk4(timestep, params, model.pendulum, current_state, timestep)
+        step_simulation_time = timestep
+        _, state_traj = integrator.rk4(timestep, params, model.pendulum, current_state, step_simulation_time)
         new_state = state_traj[:, -1]
         current_state = next_spoke_trigger(new_state, params)
         current_time += timestep

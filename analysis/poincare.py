@@ -1,6 +1,8 @@
 import numpy as np
 
 def simulate_one_step(theta_dot_n, theta_post_reset, params, model, integrator, timestep, max_time=5.0):
+    """Simulates the wheel from a post-reset state until the first spoke impact and returns the resulting angular velocity."""
+
     angle_between_spokes = 2 * np.pi / params["number_spokes"]
     initial_state = np.array([theta_post_reset, theta_dot_n])
 
@@ -16,6 +18,8 @@ def simulate_one_step(theta_dot_n, theta_post_reset, params, model, integrator, 
 
 
 def build_return_map(theta_dot_range, theta_post_reset, params, model, integrator, timestep, max_time=5.0):
+    """Builds the Poincaré return map by simulating one impact-to-impact step for each initial angular velocity in theta_dot_range."""
+
     theta_dot_next = np.full_like(theta_dot_range, np.nan, dtype=float)
 
     for i, theta_dot_n in enumerate(theta_dot_range):
@@ -27,6 +31,8 @@ def build_return_map(theta_dot_range, theta_post_reset, params, model, integrato
 
 
 def find_fixed_point(theta_dot_range, theta_dot_next):
+    """Finds a fixed point of the return map by locating a sign change in (theta_dot_next - theta_dot_range) and interpolating linearly."""
+
     difference = theta_dot_next - theta_dot_range
 
     for i in range(len(theta_dot_range) - 1):
@@ -48,6 +54,8 @@ def find_fixed_point(theta_dot_range, theta_dot_next):
 
 
 def estimate_floquet_multiplier(fixed_point, theta_post_reset, params, model, integrator, perturbation=1e-4, timestep=1e-2, max_time=5.0):
+    """Estimates the Floquet multiplier at a fixed point via central finite difference of the return map."""
+
     theta_dot_plus = simulate_one_step(fixed_point + perturbation, theta_post_reset, params, model, integrator, timestep=timestep, max_time=max_time)
     theta_dot_minus = simulate_one_step(fixed_point - perturbation, theta_post_reset, params, model, integrator, timestep=timestep, max_time=max_time)
 
@@ -59,6 +67,8 @@ def estimate_floquet_multiplier(fixed_point, theta_post_reset, params, model, in
 def sweep_stability(param_name, param_values, base_params, timestep, simulation_time, integrator, model, roa,
                      theta_dot_search_range=(0.5, 6.0), return_map_points=40, max_time=5.0,
                      n_theta=15, n_angular_velocity=15, angular_velocity_range=(-10.0, 10.0)):
+    """Sweeps a single parameter over param_values, computing the fixed point, Floquet multiplier, and region-of-attraction size at each value."""
+    
     roa_sizes = []
     floquet_multipliers = []
 
