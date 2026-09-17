@@ -70,3 +70,5 @@ animation.save(output / "walker.gif", writer=PillowWriter(fps=fps))
 # animation.save(output / "walker.mp4", writer="ffmpeg", fps=fps)
 print(f"Saved {output / 'walker.gif'} ({completed_steps} footstrikes).")
 plt.show()
+
+#adding this to create pull request
