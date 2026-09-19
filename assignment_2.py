@@ -5,23 +5,20 @@ import numpy as np
 from matplotlib.animation import FuncAnimation, PillowWriter
 
 from models import inverted_pendulum_walker as model
-from integrators import rk4
+from analysis import roa
+from controller import choose_ankle_torque
 
-# Fixed controls for this visualization example.
 params = {
-    "gravity": 9.81,  # m/s^2
-    "length": 1.0,  # m
-    "mass": 1.0,  # kg
-    "incline": 0.06,  # rad
-    "angle_of_attack": np.pi / 8,  # rad
-    "ankle_torque": 0.0,  # N m
+    "gravity": 9.81,
+    "length": 1.0,
+    "mass": 1.0,
+    "incline": 0.06,
+    "angle_of_attack": np.pi / 8,
+    "ankle_torque": 0.0,
 }
 
 angle_of_attack_min = np.pi / 8
 angle_of_attack_max = np.pi / 7
-
-ankle_torque_min = -0.1 * params["mass"] * params["gravity"] * params["length"]
-ankle_torque_max = 0.05 * params["mass"] * params["gravity"] * params["length"]
 
 
 def choose_angle_of_attack(state, params):
@@ -29,10 +26,18 @@ def choose_angle_of_attack(state, params):
     return np.clip(angle_of_attack, angle_of_attack_min, angle_of_attack_max)
 
 
-def choose_ankle_torque(state, params):
-    ankle_torque = 0.0
-    return np.clip(ankle_torque, ankle_torque_min, ankle_torque_max)
-
+theta_points, angular_velocity_points, grid_result = roa.make_roa_grid(
+    params,
+    theta_range=(-0.3, 0.3),
+    angular_velocity_range=(-1.5, 1.5),
+    n_theta=25,
+    n_angular_velocity=25,
+    timestep=1e-3,
+    simulation_time=3.0,
+    integrator=None,
+    model=model,
+)
+roa.plot_roa(theta_points, angular_velocity_points, grid_result)
 
 initial_state = np.array([0.0, 3.0])
 timestep = 1e-4
@@ -45,11 +50,14 @@ state_traj = np.zeros((2, n_timesteps))
 state_traj[:, 0] = initial_state
 completed_steps = 0
 
-# Simulation loop. Replace this Euler step with your own integrator as needed.
 for step, t in enumerate(time_traj[:-1]):
     state = state_traj[:, step]
 
-    params["ankle_torque"] = choose_ankle_torque(state, params)
+    if roa.state_in_roa(state, theta_points, angular_velocity_points, grid_result):
+        params["ankle_torque"] = choose_ankle_torque(state, params)
+    else:
+        params["ankle_torque"] = 0.0
+
     next_state = state + timestep * model.dynamics(t, state, params)
 
     if model.event_guard(state, next_state, params):
@@ -68,12 +76,10 @@ fig, ax = plt.subplots(figsize=(8, 5), layout="constrained")
 
 
 def draw_frame(index):
-    # The massless swing leg is repositioned instantaneously at each impact.
     model.visualize(state_traj[:, index], params, ax=ax)
     ax.set_title(f"t = {time_traj[index]:.2f} s")
 
 
-# Simulate at a small timestep, but render only 25 frames per second.
 fps = 25
 frame_stride = round(1 / (fps * timestep))
 frame_indices = list(range(0, time_traj.size, frame_stride))
@@ -87,7 +93,5 @@ output = Path("output/assignment_2")
 output.mkdir(parents=True, exist_ok=True)
 animation.save(output / "walker.gif", writer=PillowWriter(fps=fps))
 
-# To save an MP4 instead, install FFmpeg and use:
-# animation.save(output / "walker.mp4", writer="ffmpeg", fps=fps)
 print(f"Saved {output / 'walker.gif'} ({completed_steps} footstrikes).")
 plt.show()

@@ -1,5 +1,8 @@
 import numpy as np
 
+from models import inverted_pendulum_walker as model
+
+
 def simulate_one_step(theta_dot_n, theta_post_reset, params, model, integrator, timestep, max_time=5.0):
     """Simulates the wheel from a post-reset state until the first spoke impact and returns the resulting angular velocity."""
 
@@ -64,11 +67,12 @@ def estimate_floquet_multiplier(fixed_point, theta_post_reset, params, model, in
 
     return (theta_dot_plus - theta_dot_minus) / (2 * perturbation)
 
+
 def sweep_stability(param_name, param_values, base_params, timestep, simulation_time, integrator, model, roa,
                      theta_dot_search_range=(0.5, 6.0), return_map_points=40, max_time=5.0,
                      n_theta=15, n_angular_velocity=15, angular_velocity_range=(-10.0, 10.0)):
     """Sweeps a single parameter over param_values, computing the fixed point, Floquet multiplier, and region-of-attraction size at each value."""
-    
+
     roa_sizes = []
     floquet_multipliers = []
 
@@ -98,3 +102,28 @@ def sweep_stability(param_name, param_values, base_params, timestep, simulation_
         roa_sizes.append(roa.compute_roa_size(sweep_result))
 
     return np.array(roa_sizes), np.array(floquet_multipliers)
+
+
+def simulate_step(theta_dot_k, angle_of_attack, params, timestep, max_time=5.0):
+    step_params = dict(params)
+    step_params["angle_of_attack"] = angle_of_attack
+    step_params["ankle_torque"] = 0.0
+
+    state = np.array([0.0, theta_dot_k])
+    reset_done = False
+    t = 0.0
+
+    while t < max_time:
+        next_state = state + timestep * model.dynamics(t, state, step_params)
+
+        if not reset_done and model.event_guard(state, next_state, step_params):
+            next_state = model.event_dynamics(next_state, step_params)
+            reset_done = True
+
+        if reset_done and state[0] < 0.0 <= next_state[0]:
+            return next_state[1]
+
+        state = next_state
+        t += timestep
+
+    return None

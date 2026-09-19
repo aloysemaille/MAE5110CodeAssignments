@@ -7,6 +7,8 @@ of those functions; it draws a supplied state without advancing the simulation.
 import matplotlib.pyplot as plt
 import numpy as np
 
+from controller import choose_ankle_torque
+
 
 def generate_params():
     params = {
@@ -231,3 +233,17 @@ def visualize(
     )
     ax.set_aspect("equal", adjustable="box")
     return ax
+
+
+def simulate_trajectory(initial_state, params, timestep, simulation_time):
+    n_timesteps = round(simulation_time / timestep) + 1
+    time_traj = np.arange(n_timesteps) * timestep
+    state_traj = np.zeros((2, n_timesteps))
+    state_traj[:, 0] = initial_state
+
+    for step, t in enumerate(time_traj[:-1]):
+        state = state_traj[:, step]
+        params["ankle_torque"] = choose_ankle_torque(state, params)
+        state_traj[:, step + 1] = state + timestep * dynamics(t, state, params)
+
+    return time_traj, state_traj
