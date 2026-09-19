@@ -5,6 +5,7 @@ import numpy as np
 from matplotlib.animation import FuncAnimation, PillowWriter
 
 from models import inverted_pendulum_walker as model
+from integrators import rk4
 
 # Fixed controls for this visualization example.
 params = {
@@ -15,6 +16,23 @@ params = {
     "angle_of_attack": np.pi / 8,  # rad
     "ankle_torque": 0.0,  # N m
 }
+
+angle_of_attack_min = np.pi / 8
+angle_of_attack_max = np.pi / 7
+
+ankle_torque_min = -0.1 * params["mass"] * params["gravity"] * params["length"]
+ankle_torque_max = 0.05 * params["mass"] * params["gravity"] * params["length"]
+
+
+def choose_angle_of_attack(state, params):
+    angle_of_attack = params["angle_of_attack"]
+    return np.clip(angle_of_attack, angle_of_attack_min, angle_of_attack_max)
+
+
+def choose_ankle_torque(state, params):
+    ankle_torque = 0.0
+    return np.clip(ankle_torque, ankle_torque_min, ankle_torque_max)
+
 
 initial_state = np.array([0.0, 3.0])
 timestep = 1e-4
@@ -30,9 +48,12 @@ completed_steps = 0
 # Simulation loop. Replace this Euler step with your own integrator as needed.
 for step, t in enumerate(time_traj[:-1]):
     state = state_traj[:, step]
+
+    params["ankle_torque"] = choose_ankle_torque(state, params)
     next_state = state + timestep * model.dynamics(t, state, params)
 
     if model.event_guard(state, next_state, params):
+        params["angle_of_attack"] = choose_angle_of_attack(state, params)
         next_state = model.event_dynamics(next_state, params)
         completed_steps += 1
 
@@ -70,5 +91,3 @@ animation.save(output / "walker.gif", writer=PillowWriter(fps=fps))
 # animation.save(output / "walker.mp4", writer="ffmpeg", fps=fps)
 print(f"Saved {output / 'walker.gif'} ({completed_steps} footstrikes).")
 plt.show()
-
-#adding this to create pull request
