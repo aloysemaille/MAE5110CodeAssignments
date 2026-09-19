@@ -6,7 +6,7 @@ from matplotlib.animation import FuncAnimation, PillowWriter
 
 from models import inverted_pendulum_walker as model
 from analysis import roa
-from tools.controller import choose_ankle_torque
+from controller import choose_ankle_torque
 
 params = {
     "gravity": 9.81,
@@ -94,22 +94,3 @@ animation.save(output / "walker.gif", writer=PillowWriter(fps=fps))
 
 print(f"Saved {output / 'walker.gif'} ({completed_steps} footstrikes).")
 plt.show()
-
-roa.plot_roa(theta_points, angular_velocity_points, grid_result)
-
-from tools.lookup_table import build_lookup_table, find_single_step_stabilizable, compute_steps_to_standstill
-
-froude_two_velocity = np.sqrt(2 * 2 * params["gravity"] / params["length"])
-angular_velocity_grid = np.linspace(0.0, froude_two_velocity, 30)
-angle_of_attack_grid = np.linspace(angle_of_attack_min, angle_of_attack_max, 15)
-
-lookup_timestep = 1e-3
-table = build_lookup_table(angular_velocity_grid, angle_of_attack_grid, params, lookup_timestep)
-
-single_step_stabilizable = find_single_step_stabilizable(
-    angular_velocity_grid, theta_points, angular_velocity_points, grid_result
-)
-
-steps_to_standstill, best_angle_of_attack = compute_steps_to_standstill(
-    table, angular_velocity_grid, angle_of_attack_grid, single_step_stabilizable
-)

@@ -17,7 +17,6 @@ def simulate_full_trajectory(
 ):
     state = np.array(initial_state, dtype=float)
     time = 0.0
-    time_history = [time]
     state_history = [state.copy()]
     completed_steps = 0
 
@@ -38,29 +37,34 @@ def simulate_full_trajectory(
 
         state = next_state
         time += timestep
-        time_history.append(time)
         state_history.append(state.copy())
 
         if roa.state_in_roa(state, theta_points, angular_velocity_points, grid_result):
             break
 
-    return np.array(time_history), np.array(state_history).T, completed_steps
+    return np.array(state_history).T, completed_steps
 
 
-def plot_trajectory(time_history, state_history, title):
-    fig, (ax_theta, ax_velocity) = plt.subplots(2, 1, figsize=(8, 6), sharex=True)
-    ax_theta.plot(time_history, state_history[0, :])
-    ax_theta.set_ylabel(r"$\theta$ (rad)")
-    ax_velocity.plot(time_history, state_history[1, :])
-    ax_velocity.set_ylabel(r"$\dot\theta$ (rad/s)")
-    ax_velocity.set_xlabel("Time (s)")
-    fig.suptitle(title)
+def plot_state_space_trajectories(
+    fastest_state_history, fastest_steps, slowest_state_history, slowest_steps,
+    initial_state, save_path=None,
+):
+    fig, ax = plt.subplots(figsize=(8, 8))
+    ax.plot(fastest_state_history[0, :], fastest_state_history[1, :], label=f"fastest ({fastest_steps} steps)")
+    ax.plot(slowest_state_history[0, :], slowest_state_history[1, :], "--", label=f"slowest ({slowest_steps} steps)")
+    ax.plot(initial_state[0], initial_state[1], "o", color="black", markersize=10, label="Initial state")
+    ax.set_xlabel(r"$\theta$ (rad)")
+    ax.set_ylabel(r"$\dot\theta$ (rad/s)")
+    ax.set_title("State-Space Trajectory")
+    ax.legend()
     plt.tight_layout()
+    if save_path is not None:
+        fig.savefig(save_path)
     plt.show()
     return fig
 
 
-def plot_steps_to_standstill(angular_velocity_grid, steps_to_standstill):
+def plot_steps_to_standstill(angular_velocity_grid, steps_to_standstill, save_path=None):
     fig, ax = plt.subplots(figsize=(8, 5))
     finite_mask = np.isfinite(steps_to_standstill)
     ax.plot(angular_velocity_grid[finite_mask], steps_to_standstill[finite_mask], "o-")
@@ -68,5 +72,7 @@ def plot_steps_to_standstill(angular_velocity_grid, steps_to_standstill):
     ax.set_ylabel("Steps to standstill")
     ax.set_title("Steps to reach standstill vs initial angular velocity")
     plt.tight_layout()
+    if save_path is not None:
+        fig.savefig(save_path)
     plt.show()
     return fig

@@ -2,8 +2,13 @@ import numpy as np
 
 from models import inverted_pendulum_walker as model
 from analysis import roa
-from tools.lookup_table import build_lookup_table, find_single_step_stabilizable, compute_steps_to_standstill
-from tools.trajectory_plots import simulate_full_trajectory, plot_trajectory, plot_steps_to_standstill
+from tools.lookup_table import (
+    build_lookup_table,
+    find_single_step_stabilizable,
+    compute_fastest_steps_to_standstill,
+    compute_slowest_steps_to_standstill,
+)
+from tools.trajectory_plots import simulate_full_trajectory, plot_state_space_trajectories, plot_steps_to_standstill
 
 params = model.generate_params()
 
@@ -35,7 +40,7 @@ def test_grid_resolution(resolutions, params, timestep, test_velocities):
 
         table = build_lookup_table(velocity_grid, angle_grid, params, timestep)
         single_step = find_single_step_stabilizable(velocity_grid, theta_points, angular_velocity_points, grid_result)
-        steps, _ = compute_steps_to_standstill(table, velocity_grid, angle_grid, single_step)
+        steps, _ = compute_fastest_steps_to_standstill(table, velocity_grid, angle_grid, single_step)
 
         outcomes = [steps[np.argmin(np.abs(velocity_grid - v))] for v in test_velocities]
         results_by_resolution[(n_velocity, n_angle)] = outcomes
@@ -57,28 +62,32 @@ table = build_lookup_table(angular_velocity_grid, angle_of_attack_grid, params, 
 single_step_stabilizable = find_single_step_stabilizable(
     angular_velocity_grid, theta_points, angular_velocity_points, grid_result
 )
-steps_to_standstill, best_angle_of_attack = compute_steps_to_standstill(
+
+fastest_steps_to_standstill, fastest_angle_of_attack = compute_fastest_steps_to_standstill(
+    table, angular_velocity_grid, angle_of_attack_grid, single_step_stabilizable
+)
+slowest_steps_to_standstill, slowest_angle_of_attack = compute_slowest_steps_to_standstill(
     table, angular_velocity_grid, angle_of_attack_grid, single_step_stabilizable
 )
 
-three_plus_indices = np.where(steps_to_standstill >= 3)[0]
-example_index = three_plus_indices[0]
-example_velocity = angular_velocity_grid[example_index]
+example_initial_state = np.array([0.0, 3.0])
 
-time_history, state_history, completed_steps = simulate_full_trajectory(
-    np.array([0.0, example_velocity]), dict(params), lookup_timestep,
-    angular_velocity_grid, best_angle_of_attack, theta_points, angular_velocity_points, grid_result,
+fastest_state_history, fastest_completed_steps = simulate_full_trajectory(
+    example_initial_state, dict(params), lookup_timestep,
+    angular_velocity_grid, fastest_angle_of_attack, theta_points, angular_velocity_points, grid_result,
 )
-plot_trajectory(time_history, state_history, f"3+ step example (v0={example_velocity:.2f} rad/s, {completed_steps} steps)")
-
-finite_steps = np.where(np.isfinite(steps_to_standstill), steps_to_standstill, -1)
-max_step_index = np.argmax(finite_steps)
-max_velocity = angular_velocity_grid[max_step_index]
-
-time_history_max, state_history_max, completed_steps_max = simulate_full_trajectory(
-    np.array([0.0, max_velocity]), dict(params), lookup_timestep,
-    angular_velocity_grid, best_angle_of_attack, theta_points, angular_velocity_points, grid_result,
+slowest_state_history, slowest_completed_steps = simulate_full_trajectory(
+    example_initial_state, dict(params), lookup_timestep,
+    angular_velocity_grid, slowest_angle_of_attack, theta_points, angular_velocity_points, grid_result,
 )
-plot_trajectory(time_history_max, state_history_max, f"Max steps example (v0={max_velocity:.2f} rad/s, {completed_steps_max} steps)")
 
-plot_steps_to_standstill(angular_velocity_grid, steps_to_standstill)
+plot_state_space_trajectories(
+    fastest_state_history, fastest_completed_steps,
+    slowest_state_history, slowest_completed_steps,
+    example_initial_state, save_path="images/state_space_trajectory.png",
+)
+
+plot_steps_to_standstill(angular_velocity_grid, fastest_steps_to_standstill, save_path="images/steps_to_standstill.png")
+
+print(f"Fastest policy: {fastest_completed_steps} steps")
+print(f"Slowest policy: {slowest_completed_steps} steps")

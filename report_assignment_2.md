@@ -63,19 +63,14 @@ comparison that a coarser grid would not have been sufficient.
 
 ---
 
-## 6. Trajectory for a 3+ step initial condition
+## 6. Trajectory comparison (fastest vs slowest policy)
 
-<img src="images/trajectory_3plus_steps.png" width="500" alt="Trajectory requiring at least 3 steps">
+<img src="images/state_space_trajectory.png" width="500" alt="State-space trajectory comparing fastest and slowest stabilizing policies">
 
-This trajectory starts at theta_dot_0 = 0.32 rad/s and takes 1 steps
-to reach the ankle controller's region of attraction.
-
-### Maximum-step trajectory
-
-<img src="images/trajectory_max_steps.png" width="500" alt="Trajectory requiring the maximum number of steps">
-
-The initial condition requiring the most steps before reaching the RoA is
-theta_dot_0 = 4.66 rad/s, taking 4 steps.
+Starting from theta_dot_0 = 3.0 rad/s at theta = 0, the fastest policy reaches the
+ankle controller's region of attraction in [fill in fastest_completed_steps] steps,
+while the slowest policy that still eventually stabilizes takes [fill in
+slowest_completed_steps] steps.
 
 ---
 
@@ -84,5 +79,5 @@ theta_dot_0 = 4.66 rad/s, taking 4 steps.
 <img src="images/steps_to_standstill.png" width="500" alt="Steps to standstill vs initial velocity">
 
 This plot shows, for each initial angular velocity at theta = 0, how many strides
-the walker takes (following the lookup-table policy) before reaching the ankle
+the walker takes under the fastest-stabilizing policy before reaching the ankle
 controller's region of attraction.
