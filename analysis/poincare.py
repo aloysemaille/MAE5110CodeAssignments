@@ -127,3 +127,27 @@ def simulate_step(theta_dot_k, angle_of_attack, params, timestep, max_time=5.0):
         t += timestep
 
     return None
+
+def simulate_step(theta_dot_k, angle_of_attack, params, timestep, max_time=5.0):
+    step_params = dict(params)
+    step_params["angle_of_attack"] = angle_of_attack
+    step_params["ankle_torque"] = 0.0
+
+    state = np.array([0.0, theta_dot_k])
+    reset_done = False
+    t = 0.0
+
+    while t < max_time:
+        next_state = state + timestep * model.dynamics(t, state, step_params)
+
+        if not reset_done and model.event_guard(state, next_state, step_params):
+            next_state = model.event_dynamics(next_state, step_params)
+            reset_done = True
+
+        if reset_done and state[0] < 0.0 <= next_state[0]:
+            return next_state[1]
+
+        state = next_state
+        t += timestep
+
+    return None

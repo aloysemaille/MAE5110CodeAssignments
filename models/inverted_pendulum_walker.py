@@ -7,7 +7,7 @@ of those functions; it draws a supplied state without advancing the simulation.
 import matplotlib.pyplot as plt
 import numpy as np
 
-from controller import choose_ankle_torque
+from tools.controller import choose_ankle_torque
 
 
 def generate_params():

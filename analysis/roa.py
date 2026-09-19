@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from controller import choose_ankle_torque
+from tools.controller import choose_ankle_torque
 
 
 def make_roa_grid(params, theta_range, angular_velocity_range, n_theta, n_angular_velocity, timestep, simulation_time, integrator, model, theta_tolerance=1e-3, angular_velocity_tolerance=1e-3):

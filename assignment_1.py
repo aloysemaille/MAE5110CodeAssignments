@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 from models import rimless_wheel as model
 from analysis import roa, poincare
-from graphing_tools import plot as plot
+from tools import plot as plot
 from integrators import rk4 as integrator
 
 params={
