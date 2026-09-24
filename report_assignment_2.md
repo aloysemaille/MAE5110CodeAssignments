@@ -43,23 +43,25 @@ Alternativelly, we could choose the angle perpendicular to the slope since it wi
 
 ## 5. Grid resolution verification
 
-We verified grid resolution by building the step-to-step lookup table at several
-resolutions and comparing the predicted number of steps to standstill for a fixed
-set of test velocities (1.0, 2.0, 3.0 rad/s) not aligned with any grid point.
+We verified the lookup-table grid resolution by comparing the predicted minimum
+number of steps to standstill at several initial angular velocities. We tested
+velocity-angle grids ranging from 5 x 3 to 80 x 40.
 
-| Resolution (velocity x angle points) | Steps for v0=1.0 | Steps for v0=2.0 | Steps for v0=3.0 |
-|---|---:|---:|---:|
-| 10 x 5   | 2.0 | 3.0 | 4.0 |
-| 20 x 10  | 3.0 | 4.0 | 4.0 |
-| 40 x 20  | 2.0 | 3.0 | 4.0 |
-| 80 x 40  | 2.0 | 3.0 | 4.0 |
+| Resolution (velocity x angle points) | 1.0 | 1.5 | 2.0 | 2.5 | 3.0 | 3.5 | 4.0 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 5 x 3   | inf | inf | inf | inf | inf | inf | inf |
+| 10 x 5  | 1 | 2 | 2 | 3 | 3 | 3 | 4 |
+| 20 x 10 | 1 | 2 | 2 | 3 | 3 | 3 | 3 |
+| 40 x 20 | 1 | 2 | 2 | 2 | 3 | 3 | 3 |
+| 80 x 40 | 1 | 2 | 2 | 2 | 3 | 3 | 3 |
 
-At the coarsest resolution tested (10 x 5), predictions differed from the 20 x 10
-resolution by up to 50% (average 27.8% across the three test velocities). Doubling
-again to 40 x 20 changed predictions by up to 33.3% (average 19.4%), and doubling
-once more to 80 x 40 changed predictions by 0%, below our 5% convergence threshold.
-We therefore selected 40 x 20 as our working resolution, confirming with the 20 x 10
-comparison that a coarser grid would not have been sufficient.
+The 5 x 3 grid is clearly too coarse because it fails to find a stabilizing
+sequence for all of the tested initial velocities. Increasing the resolution
+also changes the predicted number of steps. In particular, the 20 x 10 grid
+predicts 3 steps from 2.5 rad/s, while the 40 x 20 grid predicts 2 steps.
+Doubling the resolution again from 40 x 20 to 80 x 40 produces no change at
+any of the seven tested velocities. We therefore use 40 x 20 as the coarsest
+grid that satisfies our convergence criterion.
 
 ---
 
@@ -67,10 +69,20 @@ comparison that a coarser grid would not have been sufficient.
 
 <img src="images/state_space_trajectory.png" width="500" alt="State-space trajectory comparing fastest and slowest stabilizing policies">
 
-Starting from theta_dot_0 = 3.0 rad/s at theta = 0, the fastest policy reaches the
-ankle controller's region of attraction in [fill in fastest_completed_steps] steps,
-while the slowest policy that still eventually stabilizes takes [fill in
-slowest_completed_steps] steps.
+We selected the initial condition theta = 0 rad and theta_dot = 3.52 rad/s
+because the fastest stabilizing policy requires at least three steps from this
+state.
+
+Using the fastest-stabilizing policy, the walker reaches the ankle controller's
+region of attraction in 3 steps. We also searched for a stabilizing sequence
+that allows the walker to continue walking for as long as possible before
+entering the region of attraction. For the same initial condition, the simulated
+trajectory reaches the region of attraction after 4 steps.
+
+The difference between the two trajectories illustrates that the choice of
+angle of attack alpha at each Poincare section crossing changes the number of
+steps required before the continuous ankle controller can bring the walker to
+the standing equilibrium.
 
 ---
 
@@ -78,6 +90,10 @@ slowest_completed_steps] steps.
 
 <img src="images/steps_to_standstill.png" width="500" alt="Steps to standstill vs initial velocity">
 
-This plot shows, for each initial angular velocity at theta = 0, how many strides
-the walker takes under the fastest-stabilizing policy before reaching the ankle
-controller's region of attraction.
+This plot shows the minimum number of steps required to reach the ankle
+controller's region of attraction as a function of the initial angular velocity
+on the Poincare section theta = 0. For each state, the controller selects the
+angle of attack alpha that leads to a state with the smallest remaining number
+of steps. Once the trajectory enters the region of attraction, control is
+handed over to the continuous ankle-torque controller to bring the walker to
+the standing equilibrium.

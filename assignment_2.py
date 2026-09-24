@@ -6,7 +6,7 @@ from matplotlib.animation import FuncAnimation, PillowWriter
 
 from models import inverted_pendulum_walker as model
 from analysis import roa
-from controller import choose_ankle_torque
+from tools.controller import choose_ankle_torque
 
 params = {
     "gravity": 9.81,
