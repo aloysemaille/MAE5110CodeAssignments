@@ -10,3 +10,11 @@ assignments_tex/
 # Assignment 2 figures, numerical tables, and compiled report are reproducible.
 output/
 tmp/pdfs/
+
+# Assignment 2 generated/local report images
+images/*.png
+images/*.jpg
+images/*.jpeg
+
+# Locally compiled report
+report_assignment_2.pdf
