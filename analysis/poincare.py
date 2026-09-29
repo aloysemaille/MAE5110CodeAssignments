@@ -103,6 +103,7 @@ def sweep_stability(param_name, param_values, base_params, timestep, simulation_
 
     return np.array(roa_sizes), np.array(floquet_multipliers)
 
+
 def simulate_step(theta_dot_k, angle_of_attack, params, timestep, max_time=5.0):
     step_params = dict(params)
     step_params["angle_of_attack"] = angle_of_attack

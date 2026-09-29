@@ -26,7 +26,7 @@ def choose_angle_of_attack(state, params):
     return np.clip(angle_of_attack, angle_of_attack_min, angle_of_attack_max)
 
 
-theta_points, angular_velocity_points, grid_result = roa.make_roa_grid(
+theta_points, angular_velocity_points, grid_result = roa.make_controlled_roa_grid(
     params,
     theta_range=(-0.3, 0.3),
     angular_velocity_range=(-1.5, 1.5),

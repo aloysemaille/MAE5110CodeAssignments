@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 from tools.controller import choose_ankle_torque
 
-
+#for assignment1
 def make_roa_grid(params, theta_range, angular_velocity_range, n_theta, n_angular_velocity,timestep, simulation_time, integrator, model,speed_tolerance=1e-1, cycle_tolerance=1e-1, n_consecutive=3):
     """Builds the grid for the Region of attraction map and find for each grid point if it goes to any specific attractor."""
 
@@ -37,7 +37,7 @@ def make_roa_grid(params, theta_range, angular_velocity_range, n_theta, n_angula
 
     return theta_points, angular_velocity_points, grid_result
 
-
+#for assignment2
 def make_controlled_roa_grid(params, theta_range, angular_velocity_range, n_theta, n_angular_velocity, timestep, simulation_time, integrator, model, theta_tolerance=1e-3, angular_velocity_tolerance=1e-3):
     """Builds the grid for the Region of Attraction map and finds for each grid point whether the ankle controller brings it to the upright standstill."""
 
