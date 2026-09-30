@@ -9,6 +9,8 @@ import numpy as np
 
 from tools.controller import choose_ankle_torque
 
+def generate_initial_condition():
+    return np.array([0.0, 0.0])
 
 def generate_params():
     params = {
