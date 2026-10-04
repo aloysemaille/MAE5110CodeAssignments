@@ -26,14 +26,14 @@ def generate_params():
         "gravity": 9.81,  # gravity m/s^2)
         "length": 1,  # rod length (m)
         "mass": 1,  # point mass at end of rod (kg)
-        "damping_coeff": 0.1,  # damping coefficient (kg*m^2/s)
+        "damping_coeff": 0.0,  # damping coefficient (kg*m^2/s)
         "torque": 0.0,  # applied torque (N m)
     }
     return params
 
 
 def generate_initial_condition():
-    return np.array([0.0, 0.0])
+    return np.array([np.pi/4, 0.0])
 
 
 def calculate_energy(state, params):

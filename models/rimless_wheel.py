@@ -1,6 +1,20 @@
 import numpy as np
 
-def pendulum(state, params):
+def generate_initial_condition():
+    return np.array([0.0, 0.0])
+
+def generate_params():
+    params = {
+        "gravity": 9.81,
+        "length": 1.0,
+        "mass": 1.0,
+        "damping_coeff": 1.0,
+        "ground_inclination": 0.2,
+        "number_of_spokes": 8,
+    }
+    return params
+
+def dynamics(t, state, params):
     gravity = params["gravity"]
     length = params["length"]
     mass = params["mass"]
